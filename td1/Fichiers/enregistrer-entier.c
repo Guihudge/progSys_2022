@@ -21,7 +21,7 @@ void ecrire(int fd, off_t value)
   verifier(status, "Error on writing file: ");
 }
 
-int open_wr(char *filename)
+int open_write(char *filename)
 {
   int fd = open(filename, O_WRONLY | O_CREAT, 0600);
   verifier(fd, "Error open file");
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   }
 
   //setup variable and open file
-  int file = open_wr(argv[1]);
+  int file = open_write(argv[1]);
   int offset = atoi(argv[2])*sizeof(off_t);
   off_t value = atoi(argv[3]);
 

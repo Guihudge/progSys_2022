@@ -14,13 +14,13 @@ void verifier(int cond, char *s){
   }
 }
 
-int open_wr(char* filename){
+int open_write(char* filename){
   int fd = open(filename, O_WRONLY | O_CREAT, 0600);
   verifier(fd, "Error open file");
   return fd;
 }
 
-int open_rd(char* filename){
+int open_read(char* filename){
   int fd = open(filename, O_RDONLY);
   verifier(fd, "Error open file");
   return fd;
@@ -42,8 +42,8 @@ int main(int argc, char **argv)
     usage("Too many argument");
     return EXIT_FAILURE;
   }
-  int input_file = open_rd(argv[1]);
-  int output_file = open_wr(argv[2]);
+  int input_file = open_read(argv[1]);
+  int output_file = open_write(argv[2]);
   int bufsize = atoi(argv[3]);
 
   char* buffer = malloc(sizeof(char)*bufsize);
