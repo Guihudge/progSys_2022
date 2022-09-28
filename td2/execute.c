@@ -5,13 +5,25 @@
 #include <sys/wait.h>
 #include <string.h>
 
-int System(const char *command)
+void print_option_list(char *const argv[]){
+    int i = 0;
+    while (argv[i] != NULL)
+    {
+        printf("%s ", argv[i]);
+        i++;
+    }
+    printf("\n");
+}
+
+int System( char* const argv[], char* file)
 {
     pid_t exec_process = fork();
 
     if (exec_process == 0)
     {
-        int state = execl("/bin/sh", "sh", "-c", command, NULL);
+        int state = execvp(file, argv);
+        perror(file);
+        exit(state);
         return state;
     }
     int status;
@@ -23,39 +35,32 @@ int main(int argc, char *argv[])
 {
     if (argc == 1)
     {
-        fprintf(stderr, "not egnoth argument.");
+        fprintf(stderr, "not egnoth argument.\n");
         return EXIT_FAILURE;
     }
 
-    char *base_command = "sh -c ";
-    int str_len = strlen(base_command) + 2; // + 2 pour les " pour sh
+    char* option_list[(argc)]; //-2 pour enlever le nom du programme + la command et +1 pour ajouter le NULL à la fin.
 
-    for (int i = 1; i < argc; i++)
-    {
-        str_len += strlen(argv[i]);
-        str_len++; // pour l'espace dans la commande
+    for (int i = 0; i < argc-1; i++){
+        option_list[i] = argv[i+1];
     }
 
-    char *command = malloc(sizeof(char) * str_len);
+    option_list[argc-1] = NULL;
 
-    strcat(command, base_command);
-    strcat(command, "\"");
-
-    for (int i = 1; i < argc; i++)
-    {
-        strcat(command, argv[i]);
-        strcat(command, " ");
-    }
-    strcat(command, "\"");
 
     printf("******commande\n");
 
-    printf("%s", command);
+    printf("file: %s\n", argv[1]);
+    printf("option: ");
+    print_option_list(option_list);
 
     printf("\n******execution\n");
-    int exec_status = System(command);
+    int exec_status = System(option_list, argv[1]);
 
     printf("******Exit Code: %d\n", exec_status);
+    if(exec_status != 0){
+        perror("Error on execution: ");
+    }
 
     return exec_status;
 }

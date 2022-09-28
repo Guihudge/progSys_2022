@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
                 if (execStatus != 0)
                 {
                     fprintf(stderr, "Error during execution. Aborted!");
-                    return EXIT_FAILURE;
+                    return execStatus;
                 }
             }
         }
