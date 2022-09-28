@@ -22,7 +22,7 @@ off_t lire(int fd){
     return value;
 }
 
-int open_rd(char *filename)
+int open_read(char *filename)
 {
   int fd = open(filename, O_RDONLY, 0600);
   verifier(fd, "Error open file");
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   }
 
   //setup variable and open file
-  int file = open_rd(argv[1]);
+  int file = open_read(argv[1]);
   int offset = atoi(argv[2])*sizeof(off_t);
 
   //Moving in file
