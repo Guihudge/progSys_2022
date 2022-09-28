@@ -68,11 +68,6 @@ int main(int argc, char *argv[])
 
     char *fileCommand = genCommand(argc, argv);
 
-    printf("----SUMARRY----\n");
-    printf("file commande:   %s\n", fileCommand);
-    printf("motif: %s\n", motif);
-    printf("--END SUMMARY--\n\n");
-
     DIR *folder = opendir(".");
     struct dirent *file;
     do
