@@ -16,14 +16,14 @@ int getExitCode(int status)
     return WTERMSIG(status) + 128;
 }
 
-int System(char *file, char *const argv[])
+int System(char *const argv[])
 {
     pid_t exec_process = fork();
 
     if (exec_process == 0)
     {
-        execvp(file, argv);
-        perror(file);
+        execvp(argv[0], argv);
+        perror(argv[0]);
         exit(1);
     }
     int status;
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
             if (fnmatch(motif, argv[argc-1], 0) == 0)
             {
-                int execStatus = System(argv[1], argv+1);
+                int execStatus = System(argv+1);
 
                 if (execStatus != 0)
                 {
