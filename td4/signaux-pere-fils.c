@@ -10,6 +10,12 @@
 
 #define NSIGNORT 32
 
+sigset_t mask;
+
+void handler(int sig){
+  printf("signal: %s", strsignal(sig));
+}
+
 int emetteur(int pere, int argc, char * argv[]) {
   int k = atoi(argv[1]);
 
@@ -30,10 +36,19 @@ int recepteur(int fils) {
   printf("récepteur : %d\n", getpid());
 
   // installation du handler pour tous les signaux non RT  
+  struct sigaction new;
+  new.sa_flags = 0;
+  sigemptyset(&new.sa_mask);
+  perror("sigemptyset: ");
+  new.sa_handler = handler;
 
   for(int sig = 0 ; sig < NSIGNORT ; sig++) {
-    //sigaction( , , ); 
+    sigaction( sig, &new, NULL); 
+    perror("sigaction: ");
   }
+
+  sigprocmask(SIG_UNBLOCK, &mask, NULL);
+  perror("un blocking signal: ");
     
   while(1) 
     pause();
@@ -43,7 +58,17 @@ int recepteur(int fils) {
 
 
 int main(int argc, char *argv[]){
-  pid_t pid = fork();  
+  sigemptyset(&mask);
+  perror("sigemptyset");
+  for(int sig = 0 ; sig < NSIGNORT ; sig++){
+      sigaddset(&mask, sig);
+      perror("sigaddset");
+  }
+  
+  sigprocmask(SIG_BLOCK, &mask, NULL);
+  perror("Error on blocking signals");
+
+  pid_t pid = fork();
   if (pid == 0)
     emetteur(getppid(),argc,argv);
   else
