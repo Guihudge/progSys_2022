@@ -59,8 +59,16 @@ int main(int argc, char *argv[])
     close(pipe_tab[R]);
     close(pipe_tab[W]);
 
-    waitpid(fils, NULL, 0);
-    waitpid(fils2, NULL, 0);
+    int status1;
+    int status2;
+
+    waitpid(fils, &status1, 0);
+    waitpid(fils2, &status2, 0);
+
+    if (getExitCode(status1) != 0)
+    {
+        return getExitCode(status1);
+    }
     
-    return EXIT_SUCCESS;
+    return getExitCode(status2);
 }
