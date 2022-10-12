@@ -1,32 +1,28 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define SUFFIXE ".idx"
 
-void verifier(int cond, char *s)
-{
-    if (!cond)
-    {
-        perror(s);
-        exit(EXIT_FAILURE);
-    }
+void verifier(int cond, char *s) {
+  if (!cond) {
+    perror(s);
+    exit(EXIT_FAILURE);
+  }
 }
 
-void print_option_list(char *const argv[])
-{
-    int i = 0;
-    while (argv[i] != NULL)
-    {
-        printf("%s ", argv[i]);
-        i++;
-    }
+void print_option_list(char *const argv[]) {
+  int i = 0;
+  while (argv[i] != NULL) {
+    printf("%s ", argv[i]);
+    i++;
+  }
 }
 
 int open_w(char *filename)
@@ -43,13 +39,11 @@ int open_r(char *filename)
     return fd;
 }
 
-int getExitCode(int status)
-{
-    if (WIFEXITED(status))
-    {
-        return WEXITSTATUS(status);
-    }
-    return WTERMSIG(status) + 128;
+int getExitCode(int status) {
+  if (WIFEXITED(status)) {
+    return WEXITSTATUS(status);
+  }
+  return WTERMSIG(status) + 128;
 }
 
 int System(char *const argv[])
@@ -67,8 +61,7 @@ int System(char *const argv[])
     return getExitCode(status);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
     char* filename= "temporary";
 
@@ -97,5 +90,5 @@ int main(int argc, char *argv[])
 
     dup2(save_stdin, STDIN_FILENO);
 
-    return 0;
+  return 0;
 }
