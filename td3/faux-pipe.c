@@ -29,9 +29,16 @@ void print_option_list(char *const argv[])
     }
 }
 
-int open_rw(char *filename)
+int open_w(char *filename)
 {
-    int fd = open(filename, O_RDWR | O_TRUNC | O_CREAT, 0600);
+    int fd = open(filename, O_WRONLY | O_TRUNC | O_CREAT, 0600);
+    verifier(fd, "Error open file");
+    return fd;
+}
+
+int open_r(char *filename)
+{
+    int fd = open(filename, O_RDONLY);
     verifier(fd, "Error open file");
     return fd;
 }
@@ -45,14 +52,12 @@ int getExitCode(int status)
     return WTERMSIG(status) + 128;
 }
 
-int System(char *const argv[], int out, int in)
+int System(char *const argv[])
 {
     pid_t exec_process = fork();
 
     if (exec_process == 0)
     {
-        dup2(in, STDIN_FILENO);
-        dup2(out, STDOUT_FILENO);
         execvp(argv[0], argv);
         perror(argv[0]);
         exit(1);
@@ -65,14 +70,32 @@ int System(char *const argv[], int out, int in)
 int main(int argc, char *argv[])
 {
 
-    int temp_file = open_rw("temporary");
+    char* filename= "temporary";
+
+    int temp_file = open_w(filename);
     char* first_command[2];
     first_command[0] = argv[1];
     first_command[1] = NULL;
 
-    System(first_command, temp_file, STDIN_FILENO);
+    int save_stdout = dup(STDOUT_FILENO);
+
+    dup2(temp_file, STDOUT_FILENO);
+    close(temp_file);
+
+    System(first_command);
+
+    dup2(save_stdout, STDOUT_FILENO);
     print_option_list(argv+2);
-    System(argv + 2, STDOUT_FILENO, temp_file);
+
+
+    temp_file = open_r(filename);
+    int save_stdin = dup(STDIN_FILENO);
+    dup2(temp_file, STDIN_FILENO);
+    close(temp_file);
+
+    System(argv + 2);
+
+    dup2(save_stdin, STDIN_FILENO);
 
     return 0;
 }
