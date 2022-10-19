@@ -9,7 +9,7 @@
 #include <signal.h>
 #include <sys/time.h>
 
-#define NCOMMANDES 4
+#define NCOMMANDES 10
 
 // Returns duration in secs
 #define TIME_DIFF(t1, t2) \
@@ -26,10 +26,19 @@ struct etat
 } etat_tableau[NCOMMANDES];
 
 char *commandes[NCOMMANDES][10] = {
-    {"sleep", "0", NULL},
-    {"sleep", "3", NULL},
-    {"sleep", "4", NULL},
-    {"sleep", "5", NULL}};
+    {"exit", "0", NULL},
+    {"exit", "0", NULL},
+    {"exit", "0", NULL},
+    {"exit", "0", NULL},
+    {"sleep", "1", NULL},
+    {"sleep", "1", NULL},
+    {"sleep", "1", NULL},
+    {"sleep", "1", NULL},
+    {"sleep", "1", NULL},
+    {"sleep", "2", NULL}};
+
+
+struct sigaction new, old;
 
 void modifier_etat(pid_t pid)
 {
@@ -91,6 +100,7 @@ void lancer_commandes()
       execvp(commandes[i][0], commandes[i]);
       perror(commandes[i][0]);
       abort();
+      exit(1);
     }
 
     etat_tableau[i].pid = cpid;
@@ -101,21 +111,31 @@ void lancer_commandes()
   }
 }
 
+void sigchild_handler(int sig){
+  pid_t w;
+  do{
+    w = waitpid(0, NULL, WNOHANG);
+    printf("pid = %d\n", w);
+    if (w > 0)
+      modifier_etat(w);
+  }while(w > 0);
+
+}
+
 int main(int argc, char *argv[])
 {
+  new.sa_flags = SA_RESTART;
+  sigemptyset(&new.sa_mask);
+  new.sa_handler = sigchild_handler;
+  sigaction(SIGCHLD, &new, &old);
 
   lancer_commandes();
 
   for (int cpt = 1; reste_commande(); cpt++)
   {
-    pid_t w;
     char buf[1024];
 
     printf("iteration %d\n", cpt);
-    w = waitpid(0, NULL, WNOHANG);
-    printf("pid = %d\n", w);
-    if (w > 0)
-      modifier_etat(w);
 
     int r = read(0, buf, 1024);
     if (r == -1)

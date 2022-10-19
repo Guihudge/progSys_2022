@@ -9,7 +9,7 @@ void handler(int sig)
     if (sig == SIGINT)
     {
         printf("ctrl-c\n");
-        exit(255);
+        
     }
 }
 
