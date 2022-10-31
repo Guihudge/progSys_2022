@@ -11,24 +11,33 @@
 #define NSIGNORT 32
 
 sigset_t mask;
+pid_t  fils_pid;
 
 void handler(int sig){
   printf("signal(%d): %s\n",sig, strsignal(sig));
+  kill(fils_pid, 10);
 }
 
 int emetteur(int pere, int argc, char * argv[]) {
   int k = atoi(argv[1]);
 
+  sigset_t wait;
+  sigemptyset(&wait);
+  sigaddset(&wait, SIGUSR1);
+  sigprocmask(SIG_BLOCK, &wait, NULL);
+
   sleep(1); 
+
+  int wait_sig_nb = 10;
 
   for(int i = 0 ; i < k ; i++) 
     for(int j = 2; j < argc; j++){
       kill(pere,atoi(argv[j]));
-      sleep(1);
+      sigwait(&wait, &wait_sig_nb);
   }
 
   //sleep(2);
-  //kill(pere,9);
+  kill(pere,9);
   return 0;
 }
 
@@ -66,9 +75,9 @@ int main(int argc, char *argv[]){
   
   sigprocmask(SIG_BLOCK, &mask, NULL);
 
-  pid_t pid = fork();
-  if (pid == 0)
+  fils_pid = fork();
+  if (fils_pid == 0)
     emetteur(getppid(),argc,argv);
   else
-    recepteur(pid);  
+    recepteur(fils_pid);  
 }
